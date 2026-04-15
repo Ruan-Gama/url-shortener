@@ -1,13 +1,17 @@
-from pydantic import BaseModel, ConfigDict
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, HttpUrl
 
 
 class URLCreate(BaseModel):
-    original_url: str
+    original_url: HttpUrl
 
 
 class URLResponse(BaseModel):
+    id: int
     original_url: str
     short_code: str
+    clicks: int
+    created_at: datetime
 
-    # Permite retornar objeto do SQLAlchemy direto
     model_config = ConfigDict(from_attributes=True)
