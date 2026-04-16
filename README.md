@@ -5,30 +5,33 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-API simples para encurtamento de URLs construída com FastAPI, SQLAlchemy e PostgreSQL.
+Simple URL shortening API built with FastAPI, SQLAlchemy, and PostgreSQL.
 
-O projeto cria um código curto aleatório para cada URL enviada ao endpoint `POST /shorten` e persiste os dados no banco.
+The project generates a random short code for each URL submitted to the `POST /shorten` endpoint and persists the data in the database.
 
-## Visão geral
+**Note:** This documentation is also available in Portuguese.  
+[Ler em Português 🇧🇷](./README.pt-br.md)
 
-Atualmente a aplicação entrega:
+## Overview
 
-- criação de links curtos via API REST;
-- persistência em PostgreSQL;
-- documentação interativa automática com Swagger UI;
-- execução local com Docker Compose.
+The application currently delivers:
 
-## Stack utilizada
+- short link creation via REST API;
+- persistence in PostgreSQL;
+- automatic interactive documentation with Swagger UI;
+- local execution with Docker Compose.
 
-| Camada | Tecnologia |
+## Stack
+
+| Layer | Technology |
 | --- | --- |
 | API | FastAPI |
-| Servidor ASGI | Uvicorn |
+| ASGI Server | Uvicorn |
 | ORM | SQLAlchemy |
-| Banco de dados | PostgreSQL 15 |
-| Ambiente | Docker + Docker Compose |
+| Database | PostgreSQL 15 |
+| Environment | Docker + Docker Compose |
 
-## Estrutura do projeto
+## Project structure
 
 ```text
 url-shortener/
@@ -43,59 +46,60 @@ url-shortener/
 |-- docker-compose.yml
 |-- Dockerfile
 |-- README.md
+|-- README.pt-br.md
 `-- requirements-app.txt
 ```
 
-## Requisitos
+## Requirements
 
-Para rodar o projeto com o fluxo principal:
+To run the project with the main flow:
 
 - Docker
 - Docker Compose
 
-Para rodar manualmente:
+To run manually:
 
 - Python 3.12+
 - PostgreSQL
 
-## Como executar com Docker
+## Running with Docker
 
-1. Crie o arquivo `.env` a partir do exemplo:
+1. Create the `.env` file from the example:
 
 ```bash
 cp .env.example .env
 ```
 
-No Windows PowerShell:
+On Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-2. Suba os serviços:
+2. Start the services:
 
 ```bash
 docker compose up --build
 ```
 
-3. Acesse:
+3. Access:
 
 - API: [http://localhost:8000](http://localhost:8000)
 - Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-## Como executar manualmente
+## Running manually
 
-1. Crie e ative um ambiente virtual.
-2. Instale as dependências:
+1. Create and activate a virtual environment.
+2. Install dependencies:
 
 ```bash
 pip install -r requirements-app.txt
 ```
 
-3. Garanta que o PostgreSQL esteja rodando.
-4. Configure o `.env`.
+3. Make sure PostgreSQL is running.
+4. Configure the `.env` file.
 
-Se for rodar sem Docker Compose, ajuste o host do banco para `localhost`:
+If running without Docker Compose, set the database host to `localhost`:
 
 ```env
 DB_USER=postgres
@@ -105,27 +109,27 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 
-5. Inicie a aplicação:
+5. Start the application:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-## Variáveis de ambiente
+## Environment variables
 
-| Variável | Descrição | Exemplo |
+| Variable | Description | Example |
 | --- | --- | --- |
-| `DB_USER` | usuário do banco | `postgres` |
-| `DB_PASSWORD` | senha do banco | `postgres` |
-| `DB_NAME` | nome do banco | `urlshortener` |
-| `DB_HOST` | host do banco | `db` ou `localhost` |
-| `DB_PORT` | porta do banco | `5432` |
+| `DB_USER` | database user | `postgres` |
+| `DB_PASSWORD` | database password | `postgres` |
+| `DB_NAME` | database name | `urlshortener` |
+| `DB_HOST` | database host | `db` or `localhost` |
+| `DB_PORT` | database port | `5432` |
 
-## Endpoint disponível
+## Available endpoint
 
 ### `POST /shorten`
 
-Cria um novo código curto para a URL enviada.
+Creates a new short code for the given URL.
 
 #### Request
 
@@ -144,7 +148,7 @@ Cria um novo código curto para a URL enviada.
 }
 ```
 
-#### Exemplo com cURL
+#### cURL example
 
 ```bash
 curl --request POST "http://localhost:8000/shorten" \
@@ -152,9 +156,9 @@ curl --request POST "http://localhost:8000/shorten" \
   --data "{\"original_url\":\"https://example.com\"}"
 ```
 
-## Modelo de dados
+## Data model
 
-A tabela `urls` armazena:
+The `urls` table stores:
 
 - `id`
 - `original_url`
@@ -162,16 +166,16 @@ A tabela `urls` armazena:
 - `clicks`
 - `created_at`
 
-## Testes e validação realizados
+## Testing and validation
 
-Validação executada localmente em `2026-04-15`:
+Validation performed locally on `2026-04-15`:
 
 - `docker compose build api`
 - `docker compose up -d`
-- acesso confirmado em `http://127.0.0.1:8000/docs`
-- smoke test aprovado no endpoint `POST /shorten`
+- access confirmed at `http://127.0.0.1:8000/docs`
+- smoke test passed on `POST /shorten`
 
-Resposta observada no teste:
+Observed response during testing:
 
 ```json
 {
@@ -180,20 +184,20 @@ Resposta observada no teste:
 }
 ```
 
-## Observações importantes
+## Important notes
 
-- O projeto atual implementa o encurtamento da URL, mas ainda não possui rota de redirecionamento como `GET /{short_code}`.
-- O código curto é gerado aleatoriamente com 6 caracteres alfanuméricos.
-- A criação das tabelas é feita automaticamente na inicialização da API.
+- The project currently implements URL shortening, but does not yet have a redirect route like `GET /{short_code}`.
+- The short code is randomly generated with 6 alphanumeric characters.
+- Table creation is handled automatically on API startup.
 
-## Melhorias futuras
+## Future improvements
 
-- adicionar rota de redirecionamento;
-- contabilizar cliques no acesso ao link curto;
-- criar testes automatizados;
-- validar formato de URL com regras mais rígidas;
-- adicionar endpoint de health check.
+- add redirect route;
+- track clicks on short link access;
+- write automated tests;
+- validate URL format with stricter rules;
+- add health check endpoint.
 
-## Autor
+## Author
 
-Projeto preparado para publicação por Ruan Gama.
+Project prepared for publication by Ruan Gama.
