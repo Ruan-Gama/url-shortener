@@ -1,0 +1,73 @@
+<!--
+  Landing page do encurtador de URLs.
+  Renderizada pelo Jinja2 a partir de app/main.py (rotas GET / e POST /shorten-form).
+  Contexto esperado: resultado (dict|None), erro (str|None), url_digitada (str, opcional).
+-->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encurtador de URLs</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Encurtador de URLs</h1>
+            <p class="subtitle">Cole uma URL longa e receba um link curto na hora.</p>
+        </header>
+
+        <!-- Formulário server-side: POST tradicional, sem fetch/AJAX -->
+        <form action="/shorten-form" method="post" class="form-encurtar">
+            <input
+                type="text"
+                name="original_url"
+                placeholder="https://exemplo.com/uma-url-bem-longa"
+                value="{{ url_digitada or '' }}"
+                required
+            >
+            <button type="submit">Encurtar</button>
+        </form>
+
+        {% if erro %}
+        <div class="alerta erro">
+            {{ erro }}
+        </div>
+        {% endif %}
+
+        {% if resultado %}
+        <div class="resultado">
+            <p class="resultado-label">Sua URL curta:</p>
+            <div class="resultado-caixa">
+                <span id="url-curta">{{ resultado.url_curta }}</span>
+                <button type="button" onclick="copiarUrl()" id="btn-copiar">Copiar</button>
+            </div>
+            <p class="resultado-meta">
+                Original: <a href="{{ resultado.url_longa }}" target="_blank">{{ resultado.url_longa }}</a>
+                <br>
+                Criado em {{ resultado.criado_em }}
+            </p>
+        </div>
+        {% endif %}
+
+        <footer>
+            <a href="/docs" target="_blank">Veja a documentação técnica (Swagger)</a>
+        </footer>
+    </main>
+
+    <script>
+        // Único JS da página: copiar a URL curta para a área de transferência.
+        // Não interfere no fluxo do formulário, que continua 100% server-side.
+        function copiarUrl() {
+            const texto = document.getElementById("url-curta").innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                const btn = document.getElementById("btn-copiar");
+                const original = btn.innerText;
+                btn.innerText = "Copiado!";
+                setTimeout(() => (btn.innerText = original), 1500);
+            });
+        }
+    </script>
+</body>
+</html>

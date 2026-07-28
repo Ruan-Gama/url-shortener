@@ -5,9 +5,9 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-Simple URL shortening API built with FastAPI, SQLAlchemy, and PostgreSQL.
+Simple URL shortening API built with FastAPI, SQLAlchemy, and PostgreSQL, with a lightweight server-rendered landing page.
 
-The project generates a random short code for each URL submitted to the `POST /shorten` endpoint and persists the data in the database.
+The project generates a random short code for each URL submitted (via the landing page form or the `POST /shorten` endpoint) and persists the data in the database.
 
 **Note:** This documentation is also available in Portuguese.  
 [Ler em Português 🇧🇷](./README.pt-br.md)
@@ -16,7 +16,9 @@ The project generates a random short code for each URL submitted to the `POST /s
 
 The application currently delivers:
 
+- a landing page with a form to shorten URLs, rendered server-side with Jinja2;
 - short link creation via REST API;
+- redirection of short links to their original URL, with click tracking;
 - persistence in PostgreSQL;
 - automatic interactive documentation with Swagger UI;
 - local execution with Docker Compose.
@@ -27,6 +29,7 @@ The application currently delivers:
 | --- | --- |
 | API | FastAPI |
 | ASGI Server | Uvicorn |
+| Templating | Jinja2 |
 | ORM | SQLAlchemy |
 | Database | PostgreSQL 15 |
 | Environment | Docker + Docker Compose |
@@ -39,7 +42,11 @@ url-shortener/
 |   |-- database.py
 |   |-- main.py
 |   |-- models.py
-|   `-- schemas.py
+|   |-- schemas.py
+|   |-- templates/
+|   |   `-- index.html
+|   `-- static/
+|       `-- style.css
 |-- .dockerignore
 |-- .env.example
 |-- .gitignore
@@ -84,7 +91,7 @@ docker compose up --build
 
 3. Access:
 
-- API: [http://localhost:8000](http://localhost:8000)
+- Landing page: [http://localhost:8000](http://localhost:8000)
 - Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ## Running manually
@@ -125,11 +132,19 @@ uvicorn app.main:app --reload
 | `DB_HOST` | database host | `db` or `localhost` |
 | `DB_PORT` | database port | `5432` |
 
-## Available endpoint
+## Available endpoints
+
+### `GET /`
+
+Renders the landing page with the URL-shortening form.
+
+### `POST /shorten-form`
+
+Handles the landing page form submission (`application/x-www-form-urlencoded`). Renders the result back on the same page as HTML. Intended for browser use, not for API integration.
 
 ### `POST /shorten`
 
-Creates a new short code for the given URL.
+Creates a new short code for the given URL. Intended for programmatic/API use.
 
 #### Request
 
@@ -143,8 +158,11 @@ Creates a new short code for the given URL.
 
 ```json
 {
+  "id": 1,
   "original_url": "https://example.com",
-  "short_code": "DfP6vK"
+  "short_code": "DfP6vK",
+  "clicks": 0,
+  "created_at": "2026-07-27T22:13:20.331705"
 }
 ```
 
@@ -155,6 +173,18 @@ curl --request POST "http://localhost:8000/shorten" \
   --header "Content-Type: application/json" \
   --data "{\"original_url\":\"https://example.com\"}"
 ```
+
+### `GET /urls`
+
+Lists the most recent short URLs. Accepts an optional `limit` query parameter (default `10`, max `100`).
+
+### `GET /urls/{short_code}`
+
+Returns the details of a single short URL by its code.
+
+### `GET /{short_code}`
+
+Redirects to the original URL and increments the `clicks` counter.
 
 ## Data model
 
@@ -184,19 +214,25 @@ Observed response during testing:
 }
 ```
 
+Landing page (`GET /`, `POST /shorten-form`) validated locally on `2026-07-27`:
+
+- form submission creates a record and renders the short URL on the page;
+- invalid URLs are rejected with an inline error message;
+- the JSON API (`POST /shorten`, `GET /urls`) continues to work unchanged.
+
 ## Important notes
 
-- The project currently implements URL shortening, but does not yet have a redirect route like `GET /{short_code}`.
 - The short code is randomly generated with 6 alphanumeric characters.
 - Table creation is handled automatically on API startup.
+- The landing page and the JSON API share the same URL-creation logic, so both stay consistent with each other.
 
 ## Future improvements
 
-- add redirect route;
-- track clicks on short link access;
 - write automated tests;
 - validate URL format with stricter rules;
-- add health check endpoint.
+- add health check endpoint;
+- add pagination to `GET /urls`;
+- optional JS-enhanced UX on the landing page (submit without full page reload).
 
 ## Author
 
