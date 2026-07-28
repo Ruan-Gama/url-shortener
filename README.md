@@ -234,6 +234,13 @@ Landing page (`GET /`, `POST /shorten-form`) validated locally on `2026-07-27`:
 - add pagination to `GET /urls`;
 - optional JS-enhanced UX on the landing page (submit without full page reload).
 
+## Live demo
+
+The API is hosted and publicly accessible at:
+👉 **[https://shortenerurl.duckdns.org/](https://shortenerurl.duckdns.org/)**
+
+Swagger UI: [https://shortenerurl.duckdns.org/docs](https://shortenerurl.duckdns.org/docs)
+
 ## Author
 
 Project prepared for publication by Ruan Gama.
